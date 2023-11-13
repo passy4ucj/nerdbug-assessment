@@ -3,7 +3,7 @@ import {
     UserCreationAttributes,
   } from "../../models/user.model";
   import bcrypt from "bcrypt";
-  import { generateToken, redisClient, verifyToken } from "../utils";
+  import { generateToken, verifyToken } from "../utils";
   import { Response } from "express";
   import { StatusCodes } from "http-status-codes";
   
@@ -153,12 +153,6 @@ export const loginUserService = async (
       const tokenExpireTime = verifyToken(token).exp;
       const currentTime = Math.floor(Date.now() / 1000);
       const ttl = (tokenExpireTime as number) - currentTime;
-  
-      await redisClient
-        .multi()
-        .sAdd("jwt-blacklisted-tokens", token)
-        .expire("jwt-blacklisted-tokens", ttl)
-        .exec();
   
       return "Logged out successfully";
     } catch (error) {

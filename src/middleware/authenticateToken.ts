@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import { redisClient, verifyToken } from "../utils";
+import { verifyToken } from "../utils";
 
 declare global {
   namespace Express {
@@ -28,24 +28,10 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   }
 
   try {
-    redisClient
-      .sIsMember("jwt-blacklisted-tokens", token)
-      .then((isTokenBlacklisted) => {
-        if (isTokenBlacklisted) {
-          return res
-            .status(StatusCodes.UNAUTHORIZED)
-            .json({ message: "Invalid token" });
-        }
-
         const decodedToken = verifyToken(token);
         req.user = decodedToken.user;
         next();
-      })
-      .catch((error) => {
-        return res
-          .status(StatusCodes.UNAUTHORIZED)
-          .json({ message: "Invalid token" });
-      });
+
   } catch (error) {
     return res
       .status(StatusCodes.UNAUTHORIZED)
