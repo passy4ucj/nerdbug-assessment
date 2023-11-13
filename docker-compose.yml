@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=$DATABASE_NAME
+    ports:
+      - $DATABASE_LOCAL_PORT:$DATABASE_DOCKER_PORT
+    volumes:
+      - db:/var/lib/mysql
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - $REDIS_LOCAL_PORT:$REDIS_DOCKER_PORT
+  user-service:
+    depends_on:
+      - db
+      - redis
+    build: .
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - $PORT:$PORT
+    environment:
+      - DB_HOST=mysqldb
+      - DB_USER=$DATABASE_USERNAME
+      - DB_PASSWORD=$DATABASE_PASSWORD
+      - DB_NAME=$DATABASE_NAME
+      - DB_PORT=$DATABASE_PORT
+    stdin_open: true
+    tty: true
+
+volumes: 
+  db:
