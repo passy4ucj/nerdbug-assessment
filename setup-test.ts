@@ -1,5 +1,4 @@
 import { sequelize } from "./config/database";
-import { redisClient } from "./src/utils";
 
 beforeAll(async () => {
   await sequelize.authenticate();
@@ -16,6 +15,5 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await sequelize.close();
-  await redisClient.quit();
   jest.clearAllMocks();
 });
